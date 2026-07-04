@@ -1,7 +1,11 @@
-import React from 'react'
+import { Button } from "./components/ui/button"
 
-export const App = () => {
+function App() {
   return (
-    <div>App</div>
+    <div className="h-screen w-screen flex justify-center items-center">
+      <Button>Click</Button>
+    </div>
   )
 }
+
+export default App
