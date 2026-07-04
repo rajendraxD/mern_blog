@@ -6,11 +6,20 @@ import env from "../config/env.js";
 const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
+    email: {
+      type: String,
+      required: true,
+      unique: [true, "Email already exists"],
+      lowercase: true,
+      trim: true,
+    },
     password: { type: String, required: true },
-    role: { type: String, enum: ["customer", "worker", "admin"], default: "customer" },
-    phone: { type: String, default: "" },
+    // phone: { type: String, default: "" },
+    avatar: { type: String, default: "" },
+    rememberMe: { type: Boolean, default: false },
+    role: { type: String, enum: ["user", "admin"], default: "user" },
     isActive: { type: Boolean, default: true },
+    isDeleted: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

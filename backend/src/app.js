@@ -25,7 +25,7 @@ export function createApp() {
   app.use(requestContext);
 
   //Routes
-  app.use("/", (req, res) =>
+  app.get("/", (req, res) =>
     res.json({ status: true, message: "Server is running..." }),
   );
   app.use("/api", routes);

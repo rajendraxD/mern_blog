@@ -10,9 +10,7 @@ async function start() {
     const app = createApp();
     const server = http.createServer(app);
     server.listen(env.port, () =>
-      console.log(
-        `server is running on port ${env.port} [${env.nodeEnv}]`,
-      ),
+      console.log(`Server is running on port: ${env.port} [${env.nodeEnv}]`),
     );
     const shutdown = (signal) => {
       logger.info(`${signal} received, shutting down...`);

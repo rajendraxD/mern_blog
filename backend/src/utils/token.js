@@ -38,7 +38,7 @@ export function verifyAccessToken(token) {
 //   return crypto.createHash("sha256").update(String(code)).digest("hex");
 // }
 
-export const generateToken = (user, statusCode, message, res) => {
+export const generateToken = (res, user, { statusCode = 200, message }) => {
   const accessToken = user.generateAccessToken();
   const refreshToken = user.generateRefreshToken();
 
@@ -59,4 +59,8 @@ export const generateToken = (user, statusCode, message, res) => {
       sameSite: "none",
     });
   return sendSuccess(res, { statusCode, message, data: user });
+};
+export const clearToken = (res, { message = "Cookies cleared" }) => {
+  res.clearCookie("accessToken").clearCookie("refreshToken");
+  return sendSuccess(res, { statusCode: 200, message: message });
 };
