@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -11,6 +12,31 @@ import {
 import { Input } from "@/components/ui/input"
 
 export default function LoginPage() {
+  const [mapUrl, setMapUrl] = useState(null)
+  const [status, setStatus] = useState(
+    () => ("geolocation" in navigator ? "loading" : "denied")
+  )
+
+  useEffect(() => {
+    if (status !== "loading") return
+
+    const timeoutId = setTimeout(() => setStatus("denied"), 10000)
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        clearTimeout(timeoutId)
+        setMapUrl(
+          `https://maps.google.com/maps?width=100%&height=600&hl=en&q=${pos.coords.latitude},${pos.coords.longitude}&ie=UTF8&t=&z=14&iwloc=B&output=embed`
+        )
+        setStatus("loaded")
+      },
+      () => {
+        clearTimeout(timeoutId)
+        setStatus("denied")
+      }
+    )
+  }, [status])
+
   return (
     <div className="flex min-h-svh flex-col items-center justify-center bg-muted p-6 md:p-10">
       <div className="w-full max-w-sm md:max-w-4xl">
@@ -87,11 +113,51 @@ export default function LoginPage() {
                 </FieldGroup>
               </form>
               <div className="relative hidden bg-muted md:block">
-                <img
-                  src="/placeholder.svg"
-                  alt="Image"
-                  className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-                />
+                {status === "loaded" ? (
+                  <iframe
+                    title="map"
+                    width="100%"
+                    height="100%"
+                    frameBorder="0"
+                    marginHeight="0"
+                    marginWidth="0"
+                    scrolling="no"
+                    src={mapUrl}
+                    className="absolute inset-0 h-full w-full dark:brightness-[0.2] dark:grayscale"
+                    style={{ filter: "grayscale(1) contrast(1.2) opacity(0.16)" }}
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-muted">
+                    <div className="text-center text-muted-foreground">
+                      {status === "loading" ? (
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="h-8 w-8 animate-spin rounded-full border-4 border-muted-foreground/20 border-t-muted-foreground" />
+                          <span className="text-sm">Finding your location...</span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center gap-2 px-4">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="32"
+                            height="32"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                            <circle cx="12" cy="10" r="3" />
+                          </svg>
+                          <span className="text-sm">
+                            Location access denied
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
