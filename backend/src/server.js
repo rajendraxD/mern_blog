@@ -3,7 +3,7 @@ import express from "express";
 const app = express();
 
 app.get("/", (req, res) => {
-  return res.json({ message: "Server is running..." });
+  return res.json({ status: true, message: "Server is running..." });
 });
 
 app.listen(3000, () => {
