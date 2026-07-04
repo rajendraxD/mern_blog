@@ -1,10 +1,12 @@
-import { Button } from "./components/ui/button"
-
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import LoginPage from './pages/features/auth/login/LoginPage'
 function App() {
   return (
-    <div className="h-screen w-screen flex justify-center items-center">
-      <Button>Click</Button>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
