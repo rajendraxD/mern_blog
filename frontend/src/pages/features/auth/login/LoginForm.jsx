@@ -11,16 +11,34 @@ import {
 import { Input } from "@/components/ui/input"
 import { FcGoogle } from "react-icons/fc"
 import { Eye, EyeOff, LogIn } from "lucide-react"
+import { useDispatch, useSelector } from "react-redux"
+import { login } from "../../../../store/slices/authSlice"
 
 export function LoginForm() {
+    const dispatch = useDispatch()
+    const { isLoading } = useSelector((state) => state.auth)
     const [showPassword, setShowPassword] = useState(false)
-    const [isLoading, setIsLoading] = useState(false)
+    const [formData, setFormData] = useState({
+        email: "rajendraxd1@gmail.com",
+        password: "Admin@123",
+    })
 
     async function handleSubmit(e) {
         e.preventDefault()
-        setIsLoading(true)
-        await new Promise((r) => setTimeout(r, 1500))
-        setIsLoading(false)
+        try {
+            const res = await dispatch(login(formData)).unwrap()
+            console.log(res)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    const handleOnChange = (e) => {
+        e.preventDefault()
+        let { name, value } = e.target
+        if (name === 'email') {
+            value = value.toLowerCase()
+        }
+        setFormData((prev) => ({ ...prev, [name]: value }))
     }
 
     return (
@@ -43,6 +61,10 @@ export function LoginForm() {
                         placeholder="name@example.com"
                         autoComplete="email"
                         required
+                        name="email"
+                        value={formData.email}
+                        onChange={handleOnChange}
+                        disabled={isLoading}
                     />
                 </Field>
                 <Field>
@@ -64,6 +86,10 @@ export function LoginForm() {
                             className="pr-8"
                             autoComplete="current-password"
                             required
+                            name="password"
+                            value={formData.password}
+                            onChange={handleOnChange}
+                            disabled={isLoading}
                         />
                         <button
                             type="button"

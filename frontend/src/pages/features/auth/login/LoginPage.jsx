@@ -21,7 +21,7 @@ export default function LoginPage() {
         </div>
       </div>
       <div className="relative hidden overflow-hidden bg-muted lg:flex lg:flex-col lg:items-center lg:justify-center">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
+        <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-accent/5" />
         <div className="absolute -right-32 -top-32 size-96 rounded-full bg-primary/5 blur-3xl" />
         <div className="absolute -bottom-32 -left-32 size-96 rounded-full bg-accent/5 blur-3xl" />
         <div className="relative z-10 mx-auto flex max-w-sm flex-col items-center gap-6 px-8 text-center">
