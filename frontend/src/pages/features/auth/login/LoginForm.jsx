@@ -91,7 +91,7 @@ export function LoginForm() {
                             onChange={handleOnChange}
                             disabled={isLoading}
                         />
-                        <button
+                        <Button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
                             className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
@@ -103,7 +103,7 @@ export function LoginForm() {
                             ) : (
                                 <Eye className="size-4" />
                             )}
-                        </button>
+                        </Button>
                     </div>
                 </Field>
                 <Field>
