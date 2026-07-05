@@ -3,53 +3,55 @@ import EmailQueueModel from "../models/EmailQueueModel.js";
 import { sendEmail } from "../services/emailService.js";
 import { logger } from "../config/logger.js";
 
-const isServerless = !!process.env.VERCEL;
-if (isServerless) {
-  logger.info("Email cron job skipped in serverless environment");
-} else {
-  logger.info("Email cron job started");
+logger.info("Email cron job started");
 
-  cron.schedule("*/5 * * * * *", async () => {
-    try {
-      const emails = await EmailQueueModel.find({ status: "pending" })
-        .sort({ createdAt: 1 })
-        .limit(10);
-      if (!emails.length) return;
-      logger.info(`[emailJob] Processing ${emails.length} pending email(s)`);
-      for (const email of emails) {
-        try {
-          await sendEmail({
-            to: email.to,
-            subject: email.subject,
-            html: email.html,
-            text: email.text,
-          });
-          await EmailQueueModel.findByIdAndUpdate(email._id, {
-            status: "sent",
-            sentAt: new Date(),
-          });
-          logger.info(`[emailJob] Sent to ${email.to}`);
-        } catch (err) {
-          const attempts = email.attempts + 1;
-          await EmailQueueModel.findByIdAndUpdate(email._id, {
-            status: attempts >= 3 ? "failed" : "pending",
-            attempts,
-            errorMessage: err.message,
-          });
-          logger.error(`[emailJob] Failed for ${email.to}: ${err.message}`);
-        }
+// Check pending emails and send them every 5 seconds
+cron.schedule("*/5 * * * * *", async () => {
+  try {
+    const emails = await EmailQueueModel.find({ status: "pending" })
+      .sort({ createdAt: 1 })
+      .limit(10);
+
+    if (!emails.length) return;
+
+    logger.info(`[emailJob] Processing ${emails.length} pending email(s)`);
+
+    for (const email of emails) {
+      try {
+        await sendEmail({
+          to: email.to,
+          subject: email.subject,
+          html: email.html,
+          text: email.text,
+        });
+
+        await EmailQueueModel.findByIdAndUpdate(email._id, {
+          status: "sent",
+          sentAt: new Date(),
+        });
+        logger.info(`[emailJob] Sent to ${email.to}`);
+      } catch (err) {
+        const attempts = email.attempts + 1;
+        await EmailQueueModel.findByIdAndUpdate(email._id, {
+          status: attempts >= 3 ? "failed" : "pending",
+          attempts,
+          errorMessage: err.message,
+        });
+        logger.error(`[emailJob] Failed for ${email.to}: ${err.message}`);
       }
-    } catch (err) {
-      logger.error(`[emailJob] Error: ${err.message}`);
     }
-  });
+  } catch (err) {
+    logger.error(`[emailJob] Error: ${err.message}`);
+  }
+});
 
-  cron.schedule("0 0 * * *", async () => {
-    const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-    await EmailQueueModel.deleteMany({
-      status: { $in: ["sent", "failed"] },
-      createdAt: { $lt: sixMonthsAgo },
-    });
+// Delete sent/failed emails older than 6 months
+cron.schedule("0 0 * * *", async () => {
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+  await EmailQueueModel.deleteMany({
+    status: { $in: ["sent", "failed"] }, // Optional
+    createdAt: { $lt: sixMonthsAgo },
   });
-}
+});
