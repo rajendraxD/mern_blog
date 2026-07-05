@@ -44,7 +44,7 @@ userSchema.methods.generateAccessToken = function () {
 
 userSchema.methods.generateRefreshToken = function () {
   return jwt.sign({ id: this._id }, env.jwt.refreshSecret, {
-    expiresIn: env.jwt.refreshExpiresDays,
+    expiresIn: env.jwt.refreshExpires,
   });
 };
 

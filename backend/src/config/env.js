@@ -15,7 +15,7 @@ if (missing.length) {
     accessSecret: process.env.JWT_ACCESS_SECRET,
     refreshSecret: process.env.JWT_REFRESH_SECRET,
     accessExpires: process.env.JWT_ACCESS_EXPIRES || 900000,
-    refreshExpiresDays: process.env.JWT_REFRESH_EXPIRES_DAYS || 604800000,
+    refreshExpires: process.env.JWT_REFRESH_EXPIRES || 604800000,
   },
   // otpExpiresMinutes: Number(process.env.OTP_EXPIRES_MINUTES) || 10,
   // seed: {

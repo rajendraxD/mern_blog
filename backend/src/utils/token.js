@@ -18,7 +18,7 @@ export function verifyAccessToken(token) {
 //   const raw = crypto.randomBytes(48).toString("hex");
 //   const hash = hashToken(raw);
 //   const expiresAt = new Date(
-//     Date.now() + env.jwt.refreshExpiresDays * 24 * 60 * 60 * 1000,
+//     Date.now() + env.jwt.refreshExpires * 24 * 60 * 60 * 1000,
 //   );
 //   return { raw, hash, expiresAt };
 // }
@@ -53,7 +53,7 @@ export const generateToken = (res, user, { statusCode = 200, message }) => {
       sameSite: "none",
     })
     .cookie("refreshToken", refreshToken, {
-      maxAge: env.jwt.refreshExpiresDays,
+      maxAge: env.jwt.refreshExpires,
       httpOnly: true,
       secure: true,
       sameSite: "none",
