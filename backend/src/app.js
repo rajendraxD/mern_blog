@@ -7,7 +7,6 @@ import { morganStream } from "./config/logger.js";
 import { requestContext } from "./middlewares/requestContext.js";
 import { notFound, errorHandler } from "./middlewares/errorHandler.js";
 import routes from "./routes/index.js";
-import { dbMiddleware } from "./middlewares/dbMiddleware.js";
 
 export function createApp() {
   const app = express();
@@ -24,7 +23,6 @@ export function createApp() {
   app.use(cookieParser());
   app.use(morgan(env.isProd ? "combined" : "dev", { stream: morganStream }));
   app.use(requestContext);
-  app.use(dbMiddleware);
 
   //Routes
   app.get("/", (req, res) =>

@@ -8,37 +8,36 @@ logger.info("Email cron job started");
 // Check pending emails and send them every 5 seconds
 cron.schedule("*/5 * * * * *", async () => {
   try {
-    const emails = await EmailQueueModel.find({ status: "pending" })
-      .sort({ createdAt: 1 })
-      .limit(10);
+    const email = await EmailQueueModel.findOneAndUpdate(
+      { status: "pending" },
+      { $set: { status: "processing" } },
+      { sort: { createdAt: 1 } },
+    );
+    if (!email) return;
 
-    if (!emails.length) return;
+    logger.info(`[emailJob] Processing email to ${email.to}`);
 
-    logger.info(`[emailJob] Processing ${emails.length} pending email(s)`);
+    try {
+      await sendEmail({
+        to: email.to,
+        subject: email.subject,
+        html: email.html,
+        text: email.text,
+      });
 
-    for (const email of emails) {
-      try {
-        await sendEmail({
-          to: email.to,
-          subject: email.subject,
-          html: email.html,
-          text: email.text,
-        });
-
-        await EmailQueueModel.findByIdAndUpdate(email._id, {
-          status: "sent",
-          sentAt: new Date(),
-        });
-        logger.info(`[emailJob] Sent to ${email.to}`);
-      } catch (err) {
-        const attempts = email.attempts + 1;
-        await EmailQueueModel.findByIdAndUpdate(email._id, {
-          status: attempts >= 3 ? "failed" : "pending",
-          attempts,
-          errorMessage: err.message,
-        });
-        logger.error(`[emailJob] Failed for ${email.to}: ${err.message}`);
-      }
+      await EmailQueueModel.findByIdAndUpdate(email._id, {
+        status: "sent",
+        sentAt: new Date(),
+      });
+      logger.info(`[emailJob] Sent to ${email.to}`);
+    } catch (err) {
+      const attempts = email.attempts + 1;
+      await EmailQueueModel.findByIdAndUpdate(email._id, {
+        status: attempts >= 3 ? "failed" : "pending",
+        attempts,
+        errorMessage: err.message,
+      });
+      logger.error(`[emailJob] Failed for ${email.to}: ${err.message}`);
     }
   } catch (err) {
     logger.error(`[emailJob] Error: ${err.message}`);
