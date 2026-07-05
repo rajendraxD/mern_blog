@@ -6,7 +6,7 @@ import { connectDB } from "./config/db.js";
 
 const app = createApp();
 
-const isServerless = !!process.env.VERCEL;
+const isServerless = !!env.VERCEL;
 
 if (!isServerless) {
   import("./jobs/emailJob.js");
