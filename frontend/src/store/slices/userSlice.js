@@ -20,7 +20,11 @@ export const userSlice = createSlice({
     isLoading: false,
     error: null,
   },
-  reducers: {},
+  reducers: {
+    getUser(state, action) {
+      state.user = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(profile.pending, (state) => {
@@ -38,4 +42,5 @@ export const userSlice = createSlice({
   },
 });
 
+export const { getUser } = userSlice.actions;
 export default userSlice.reducer;

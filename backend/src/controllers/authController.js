@@ -1,3 +1,4 @@
+import { logger } from "../config/logger.js";
 import UserModel from "../models/UserModel.js";
 import { emailTemplates, queueEmail } from "../services/emailService.js";
 import { notify } from "../services/notificationService.js";
@@ -43,6 +44,32 @@ export const login = asyncHandler(async (req, res) => {
 
 export const logout = asyncHandler(async (req, res) => {
   clearToken(res, { message: "Logout successfully" });
+});
+
+export const refreshToken = asyncHandler(async (req, res) => {
+  const { refreshToken } = req.cookies;
+
+  if (!refreshToken) {
+    logger.info("Refresh token missing");
+    throw ApiError.badRequest("Please login to continue.");
+  }
+
+  const decoded = UserModel.decodeRefreshToken(refreshToken);
+  if (!decoded) {
+    logger.info("Refresh token is not valid");
+    throw ApiError.badRequest("Please login to continue.");
+  }
+
+  const user = await UserModel.findById(decoded.id);
+  if (!user) {
+    logger.info("User not found with this token id.");
+    throw ApiError.badRequest("Please login to continue.");
+  }
+
+  generateToken(res, user, {
+    statusCode: 200,
+    message: "Token refreshed successfully",
+  });
 });
 
 export const loginWithGoogle = asyncHandler(async () => {

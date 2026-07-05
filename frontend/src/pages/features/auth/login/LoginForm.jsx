@@ -29,7 +29,7 @@ export function LoginForm() {
             const res = await dispatch(login(formData)).unwrap()
             console.log(res)
         } catch (error) {
-            console.log(error)
+            console.error(error)
         }
     }
     const handleOnChange = (e) => {

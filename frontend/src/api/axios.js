@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: (import.meta.env.VITE_API_UR || "http://localhost:5000") + "/api",
+  baseURL: (import.meta.env.VITE_API_URL || "http://localhost:5000") + "/api",
   withCredentials: true,
 });
 
@@ -12,6 +12,11 @@ export const del = (url) => api.delete(url);
 
 let isRefreshing = false;
 let failedQueue = [];
+
+const refreshTokenService = async () => {
+  const response = await api.post("/auth/refresh-token");
+  return response.data;
+};
 
 const processQueue = (error, token = null) => {
   failedQueue.forEach((prom) => {
@@ -34,8 +39,8 @@ api.interceptors.response.use(
 
     if (
       error.response?.status === 401 &&
-      !originalRequest._retry
-      //    && localStorage.getItem("isLoggedIn") === "true"
+      !originalRequest._retry &&
+      !originalRequest.url?.includes("/auth/refresh-token")
     ) {
       if (isRefreshing) {
         return new Promise(function (resolve, reject) {
@@ -53,16 +58,14 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // await refreshTokenService();
+        await refreshTokenService();
         processQueue(null);
         return api(originalRequest);
       } catch (err) {
         processQueue(err, null);
-        // console.log("interceptor force redirect");
-        // localStorage.setItem("isLoggedIn", "false");
-        // if (window.location.pathname !== "/login") {
-        window.location.href = "/login";
-        // }
+        if (window.location.pathname !== "/login") {
+          window.location.href = "/login";
+        }
         return Promise.reject(err);
       } finally {
         isRefreshing = false;

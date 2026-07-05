@@ -4,12 +4,10 @@ import { Button } from '../../../components/ui/button'
 function DashboardPage() {
   const dispatch = useDispatch()
 
-  const handleLogout = (e) => {
+  const handleLogout = async (e) => {
     e.preventDefault()
     try {
-      const res = dispatch(logout()).unwrap(
-
-      )
+      const res = await dispatch(logout()).unwrap()
       console.log(res)
     } catch (error) {
       console.error(error)
