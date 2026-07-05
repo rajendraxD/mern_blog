@@ -3,7 +3,8 @@ import { createApp } from "./app.js";
 import { logger } from "./config/logger.js";
 import env from "./config/env.js";
 import { connectDB } from "./config/db.js";
-// import "./jobs/emailJob.js";
+import "./jobs/emailJob.js";
+
 
 async function start() {
   try {
