@@ -1,15 +1,15 @@
-import 'dotenv/config';
+import "dotenv/config";
 
-const required = ['MONGO_URI','CLIENT_URL','NODE_ENV'];
+const required = ["MONGO_URI", "CLIENT_URL", "NODE_ENV"];
 const missing = required.filter((k) => !process.env[k]);
 if (missing.length) {
   // eslint-disable-next-line no-console
-  console.warn(`[env] Missing required env vars: ${missing.join(', ')}`);
+  console.warn(`[env] Missing required env vars: ${missing.join(", ")}`);
 }
- const envConfig = {
+const envConfig = {
   port: Number(process.env.PORT) || 5000,
-  nodeEnv: process.env.NODE_ENV || 'development',
-  clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
+  nodeEnv: process.env.NODE_ENV || "development",
+  clientUrl: process.env.CLIENT_URL || "http://localhost:5173",
   mongoUri: process.env.MONGO_URI,
   jwt: {
     accessSecret: process.env.JWT_ACCESS_SECRET,
@@ -29,8 +29,8 @@ if (missing.length) {
     port: Number(process.env.SMTP_PORT) || 587,
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
-    service: process.env.SMTP_SERVICE || 'gmail',
-    from: process.env.SMTP_FROM || 'Blog App <no-reply@example.com>',
+    service: process.env.SMTP_SERVICE || "gmail",
+    from: process.env.SMTP_FROM || "Blog App <no-reply@example.com>",
   },
   // cloudinary: {
   //   cloudName: process.env.CLOUDINARY_CLOUD_NAME,
@@ -41,7 +41,7 @@ if (missing.length) {
   //   url: process.env.CLOUDINARY_URL,
   // },
   get isProd() {
-    return this.nodeEnv === 'production';
+    return this.nodeEnv === "production";
   },
 };
 
