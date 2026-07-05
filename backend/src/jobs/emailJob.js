@@ -2,9 +2,8 @@ import cron from "node-cron";
 import EmailQueueModel from "../models/EmailQueueModel.js";
 import { sendEmail } from "../services/emailService.js";
 import { logger } from "../config/logger.js";
-import env from "../config/env.js";
 
-const isServerless = !!env.VERCEL;
+const isServerless = !!process.env.VERCEL;
 if (isServerless) {
   logger.info("Email cron job skipped in serverless environment");
 } else {
