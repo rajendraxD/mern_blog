@@ -1,29 +1,23 @@
-import nodemailer from 'nodemailer';
-import  env  from '../config/env.js';
-import { logger } from '../config/logger.js';
+import nodemailer from "nodemailer";
+import env from "../config/env.js";
+import { logger } from "../config/logger.js";
+import EmailQueueModel from "../models/EmailQueueModel.js";
 
 let transporter = null;
-
 function getTransporter() {
   if (transporter) return transporter;
-  if (!env.smtp.host) return null; // dev mode: log instead of send
+  if (!env.smtp.host) return null;
   transporter = nodemailer.createTransport({
+    service: env.smtp.service,
     host: env.smtp.host,
     port: env.smtp.port,
     secure: env.smtp.port === 465,
-    auth: env.smtp.user ? { user: env.smtp.user, pass: env.smtp.pass } : undefined,
+    auth: env.smtp.user
+      ? { user: env.smtp.user, pass: env.smtp.pass }
+      : undefined,
   });
   return transporter;
 }
-const timestamp = new Intl.DateTimeFormat("en-GB", {
-  day: "2-digit",
-  month: "2-digit",
-  year: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
-  second: "2-digit",
-  hour12: true,
-}).format(new Date());
 
 export async function sendEmail({ to, subject, html, text }) {
   const tx = getTransporter();
@@ -35,20 +29,33 @@ export async function sendEmail({ to, subject, html, text }) {
   return { delivered: true };
 }
 
+export async function queueEmail({ to, subject, html, text }) {
+  await EmailQueueModel.create({ to, subject, html, text });
+  logger.info(`Email queued for ${to}: ${subject}`);
+}
+
 export const emailTemplates = {
   welcome: (name) => ({
-    subject: 'Welcome to Smart workers platform',
+    subject: "Welcome to Smart workers platform",
     text: `Hi ${name}, your account has been created successfully.`,
     html: `<p>Hi <b>${name}</b>,</p><p>Your account has been created successfully.</p>`,
   }),
   otp: (name, code, minutes) => ({
-    subject: 'Your Password Reset Code',
+    subject: "Your Password Reset Code",
     text: `Hi ${name}, your password reset code is ${code}. It expires in ${minutes} minutes.`,
     html: `<p>Hi <b>${name}</b>,</p><p>Your password reset code is <b style="font-size:18px">${code}</b>.</p><p>It expires in ${minutes} minutes.</p>`,
   }),
-  login:(name)=>({
-    subject: 'Login',
+  login: (name) => ({
+    subject: "Login",
     text: `Hi ${name}, you have logged in successfully.`,
-    html: `<p>Hi <b>${name}</b>,</p><p>You have logged in successfully at ${timestamp}.</p>`,
-  })
+    html: `<p>Hi <b>${name}</b>,</p><p>You have logged in successfully at ${new Intl.DateTimeFormat("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    }).format(new Date())}.</p>`,
+  }),
 };

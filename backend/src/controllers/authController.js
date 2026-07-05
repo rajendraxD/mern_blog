@@ -1,4 +1,6 @@
 import UserModel from "../models/UserModel.js";
+import { emailTemplates, queueEmail } from "../services/emailService.js";
+import { notify } from "../services/notificationService.js";
 import { ApiError } from "../utils/ApiError.js";
 import { sendSuccess } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -14,6 +16,8 @@ export const register = asyncHandler(async (req, res) => {
 
   const user = await UserModel.create({ name, email, password });
 
+  await queueEmail({ to: user.email, ...emailTemplates.welcome(user.name) });
+
   generateToken(res, user, {
     statusCode: 201,
     message: "Register successfully",
@@ -28,6 +32,8 @@ export const login = asyncHandler(async (req, res) => {
 
   const isMatch = await user.comparePassword(password);
   if (!isMatch) throw new ApiError(400, "Email or password is incorrect");
+
+  await queueEmail({ to: user.email, ...emailTemplates.login(user.name) });
 
   generateToken(res, user, {
     statusCode: 200,

@@ -29,7 +29,8 @@ if (missing.length) {
     port: Number(process.env.SMTP_PORT) || 587,
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
-    from: process.env.SMTP_FROM || 'Smart workers platform <no-reply@example.com>',
+    service: process.env.SMTP_SERVICE || 'gmail',
+    from: process.env.SMTP_FROM || 'Blog App <no-reply@example.com>',
   },
   // cloudinary: {
   //   cloudName: process.env.CLOUDINARY_CLOUD_NAME,
